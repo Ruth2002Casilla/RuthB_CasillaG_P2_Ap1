@@ -1,0 +1,6 @@
+@SegundoParcial.Server_HostAddress = http://localhost:5107
+
+GET {{SegundoParcial.Server_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
