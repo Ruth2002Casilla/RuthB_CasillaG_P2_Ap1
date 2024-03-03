@@ -7,6 +7,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SegundoParcial.Client", "Se
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SegundoParcial.Server", "SegundoParcial.Server\SegundoParcial.Server.csproj", "{206BB23A-0FC6-4684-AF61-20608655E3DC}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Biblioteca", "Biblioteca\Biblioteca.csproj", "{B200FE11-8A26-4DA0-8168-D3A21FAA842B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{206BB23A-0FC6-4684-AF61-20608655E3DC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{206BB23A-0FC6-4684-AF61-20608655E3DC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{206BB23A-0FC6-4684-AF61-20608655E3DC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B200FE11-8A26-4DA0-8168-D3A21FAA842B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B200FE11-8A26-4DA0-8168-D3A21FAA842B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B200FE11-8A26-4DA0-8168-D3A21FAA842B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B200FE11-8A26-4DA0-8168-D3A21FAA842B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
