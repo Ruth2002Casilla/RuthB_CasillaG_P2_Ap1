@@ -1,5 +1,46 @@
-﻿<h3>Create</h3>
+﻿@page "/Create"
+
+@inject HttpClient httpClient
+@inject NavigationManager NavigationManager
+
+<EditForm Model="accesorios" OnValidSubmit="Guardar">
+    <DataAnnotationsValidator />
+    <div class="card shadow-lg border-0 rounded" style="background-color: #f8f9fa;">
+
+        <div class="card-header bg-primary text-white text-center py-2 rounded">
+            <h3 style="font-weight: bold;" class="mb-0 font-weight-bold">Registro de Accesorios</h3>
+        </div>
+
+        <div class="card-body">
+
+            <div class="row">
+
+                <div class="col-md-0 mb-3">
+                    <label style="font-weight: bold;" for="Descripcion" class="form-label">Descripci&oacuten:</label>
+                    <InputText @bind-Value="accesorios.Descripcion" class="form-control" placeholder="Ingrese la descripción del Accesorio" />
+                    <ValidationMessage For="@(() => accesorios.Descripcion)" />
+                </div>
+
+            </div>
+        </div>
+
+        <div class="card-footer bg-light d-flex justify-content-end">
+            <div class="btn-group">
+                <a type="button" href="/indexsistemas/" class="btn btn-outline-danger"><span class="fas fa-arrow-left"></span> Retroceder </a>
+                <button type="submit" class="btn btn-outline-success"><span class="fas fa-save"></span> Guardar </button>
+            </div>
+        </div>
+    </div>
+</EditForm>
 
 @code {
-
+    public Accesorios accesorios = new Accesorios();
+    public async Task Guardar()
+    {
+        var guardado = await httpClient.PostAsJsonAsync("api/Accesorios", this.accesorios);
+        if (guardado.IsSuccessStatusCode)
+        {
+            NavigationManager.NavigateTo("/indexsistemas");
+        }
+    }
 }
