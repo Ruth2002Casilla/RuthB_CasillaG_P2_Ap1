@@ -5,9 +5,9 @@ VisualStudioVersion = 17.9.34622.214
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SegundoParcial.Client", "SegundoParcial\SegundoParcial.Client.csproj", "{B714A302-58D6-47F2-9312-A417AF8566F4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SegundoParcial.Server", "SegundoParcial.Server\SegundoParcial.Server.csproj", "{206BB23A-0FC6-4684-AF61-20608655E3DC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SegundoParcial.Server", "SegundoParcial.Server\SegundoParcial.Server.csproj", "{206BB23A-0FC6-4684-AF61-20608655E3DC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Biblioteca", "Biblioteca\Biblioteca.csproj", "{B200FE11-8A26-4DA0-8168-D3A21FAA842B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Biblioteca", "Biblioteca\Biblioteca.csproj", "{B200FE11-8A26-4DA0-8168-D3A21FAA842B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
