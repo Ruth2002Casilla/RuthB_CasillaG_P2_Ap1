@@ -24,9 +24,6 @@ namespace Biblioteca.Models
         [Required(ErrorMessage = "Este campo es Obligatorio")]
         [Range(1.00, double.MaxValue, ErrorMessage = "El Monto debe ser mayor que 0.")]
         public double Costo { get; set; }
-
-        [Required(ErrorMessage = "Este campo es Obligatorio")]
-        [Range(1.00, double.MaxValue, ErrorMessage = "El Monto debe ser mayor que 0.")]
         public double Gasto { get; set; }
     }
 }
