@@ -41,7 +41,7 @@ namespace SegundoParcial.Server.Migrations
                     b.Property<double>("Costo")
                         .HasColumnType("REAL");
 
-                    b.Property<string>("Decsripcion")
+                    b.Property<string>("Descripcion")
                         .IsRequired()
                         .HasColumnType("TEXT");
 

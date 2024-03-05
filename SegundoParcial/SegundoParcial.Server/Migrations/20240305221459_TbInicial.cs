@@ -31,7 +31,7 @@ namespace SegundoParcial.Server.Migrations
                     VehiculoId = table.Column<int>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
                     Fecha = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    Decsripcion = table.Column<string>(type: "TEXT", nullable: false),
+                    Descripcion = table.Column<string>(type: "TEXT", nullable: false),
                     Costo = table.Column<double>(type: "REAL", nullable: false),
                     Gasto = table.Column<double>(type: "REAL", nullable: false)
                 },

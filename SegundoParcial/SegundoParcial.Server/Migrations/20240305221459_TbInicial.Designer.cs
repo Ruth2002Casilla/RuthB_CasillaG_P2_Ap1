@@ -11,7 +11,7 @@ using SegundoParcial.Server.DAL;
 namespace SegundoParcial.Server.Migrations
 {
     [DbContext(typeof(Context))]
-    [Migration("20240304231325_TbInicial")]
+    [Migration("20240305221459_TbInicial")]
     partial class TbInicial
     {
         /// <inheritdoc />
@@ -44,7 +44,7 @@ namespace SegundoParcial.Server.Migrations
                     b.Property<double>("Costo")
                         .HasColumnType("REAL");
 
-                    b.Property<string>("Decsripcion")
+                    b.Property<string>("Descripcion")
                         .IsRequired()
                         .HasColumnType("TEXT");
 
