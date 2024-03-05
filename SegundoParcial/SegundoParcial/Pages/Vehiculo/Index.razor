@@ -1,7 +1,129 @@
 ﻿@page "/VehiculoIndex"
 
 @inject NavigationManager NavigationManager
+@inject HttpClient httpClient
+
+<EditForm Model="ListaVehiculo" class="border shadow-lg p-3 rounded">
+    <div class="card-header bg-primary text-white text-center py-2 rounded">
+        <h3 style="font-weight: bold;" class="mb-0 font-weight-bold">Consulta de Vehiculos</h3>
+    </div>
+    <div class="card-body">
+        <div class="row mb-3 align-items-end">
+            <div class="col-md-3">
+                <label style="font-weight: bold;" for="Filtro" class="form-label">Filtrar por:</label>
+                <select @bind="filtro" class="form-select">
+                    <option value="ticketId">Vehiculo ID</option>
+                    <option value="clienteId">Costo</option>
+                    <option value="asunto">Descrpcion</option>
+                </select>
+            </div>
+            <div class="col-md-6">
+                <label style="font-weight: bold;" for="ValorFiltro" class="form-label">B&uacute;squeda:</label>
+                <div class="input-group">
+                    <input @bind="valorFiltro" class="form-control" placeholder="Buscar" />
+                    <button @onclick="Buscar" class="btn btn-outline-primary" type="button">
+                        <span class="fas fa-search"></span> Buscar
+                    </button>
+                </div>
+            </div>
+            <div class="col-md-3 text-end">
+                <a href="/CreateVehiculo" class="btn btn-success" type="button"><span class="fas fa-plus"></span> Crear </a>
+            </div>
+        </div>
+    </div>
+    <table class="table table-bordered text-center">
+        <thead class="bg-primary text-white">
+            <tr>
+                <th>ID</th>
+                <th>Fecha</th>
+                <th>Descripcion</th>
+                <th>Costo</th>
+                <th>Gasto</th>
+                <th>Editar</th>
+                <th>Detalle</th>
+                <th>Eliminar</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (ListaVehiculo.Any())
+            {
+                @foreach (var vehiculo in ListaVehiculo)
+                {
+                    <tr>
+                        <td>@vehiculo.VehiculoId</td>
+                        <td>@vehiculo.Fecha</td>
+                        <td>@vehiculo.Decsripcion</td>
+                        <td>@vehiculo.Costo</td>
+                        <td>@vehiculo.Gasto</td>
+                        <td>
+                            <a href="/EditVehiculo/@vehiculo.VehiculoId" style="border: none; background-color: transparent;" class="btn-editar">
+                               
+                            </a>
+
+                        </td>
+                        <td>
+                            <a href="/DetailsVehiculo/@vehiculo.VehiculoId" style="border: none; background-color: transparent;" class="btn-detalle">
+                              
+                            </a>
+                        </td>
+                        <td>
+                            <a href="/DeleteVehiculo/@vehiculo.VehiculoId" style="border: none; background-color: transparent;" class="btn-eliminar">
+                                <img style="width: 32px; height: 32px;" src="./recursos/eliminar.png" alt="eliminar" />
+                            </a>
+                        </td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr>
+                    <td colspan="10" class="text-center">No se ha encontrado ningun ticket.</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</EditForm>
+
 
 @code {
+
+    public Vehiculo vehiculo = new Vehiculo();
+
+    private string filtro = "ticketId";
+    private string valorFiltro = "";
+
+
+    public List<Vehiculo> ListaVehiculo = new List<Vehiculo>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        ListaVehiculo = await httpClient.GetFromJsonAsync<List<Vehiculo>>("api/Vehiculo");
+    }
+
+
+    private async Task Buscar()
+    {
+        if (valorFiltro.Trim() != "")
+        {
+
+            if (filtro == "VehiculoId" && int.TryParse(valorFiltro, out int vehiculoid))
+            {
+                ListaVehiculo = (await httpClient.GetFromJsonAsync<List<Vehiculo>>("api/Vehiculo"))!.Where(v => v.VehiculoId == vehiculoid).ToList();
+            }
+
+            else if (filtro == "costo" && double.TryParse(valorFiltro, out double costo))
+            {
+                ListaVehiculo = (await httpClient.GetFromJsonAsync<List<Vehiculo>>("api/Vehiculo"))!.Where(v => v.Costo == costo).ToList();
+            }
+            else if (filtro == "descripcion")
+            {
+                ListaVehiculo = (await httpClient.GetFromJsonAsync<List<Vehiculo>>("api/Vehiculo"))!.Where(v => v.Decsripcion == valorFiltro).ToList();
+            }
+        }
+        else
+        {
+            ListaVehiculo = await httpClient.GetFromJsonAsync<List<Vehiculo>>("api/Vehiculo");
+        }
+    }
 
 }

@@ -28,7 +28,18 @@
                 </div>
         </div>
 @* Fin de Vehiculo *@
-        
+        </div>
+
+        <div class="card-footer">
+            <div class="row">
+                <div class="input-group">
+                    <a href="/IndexVehiculo" class="btn btn-primary bi bi-house-door-fill">Volver</a>
+                    <button type="button" class="btn btn-secondary bi bi-file-earmark-diff-fill" @onclick="Nuevo" @oninput="MensajeGuardar">Nuevo</button>
+                    <button type="submit" class="btn btn-success bi bi-floppy-fill">Guardar</button>
+                </div>
+            </div>
+        </div>
+    </div>
 </EditForm>
 
 
@@ -80,34 +91,32 @@
         }
     }
 
-    public async Task GuardarAccesorio()
-    {
-        bool existeAccesorio = await VerificarExistenciaAccesorio();
+    // public async Task GuardarAccesorio()
+    // {
+    //     bool existeAccesorio = await VerificarExistenciaAccesorio();
 
-        if (existeAccesorio)
-        {
-            resultado = 2;
-            mensaje = "Ya existe un vehiculo con la misma descrpcion.";
-            return;
-        }
+    //     if (existeAccesorio)
+    //     {
+    //         resultado = 2;
+    //         mensaje = "Ya existe un cliente con el mismo nombre o RNC.";
+    //         return;
+    //     }
 
-        var guardadoAccesorio = await httpClient.PostAsJsonAsync("api/Accesorios", this.accesorios);
+    //     var guardadoAccesorio = await httpClient.PostAsJsonAsync("api/Accesorios", this.accesorios);
 
-        if (guardadoAccesorio.IsSuccessStatusCode)
-        {
-            var accesorioCreado = await guardadoAccesorio.Content.ReadFromJsonAsync<Accesorios>();
-            resultado = 1;
-            mensaje = "Registro Guardado";
-            accesorios = new Accesorios();
-        }
-        else
-        {
-            resultado = 2;
-            mensaje = "Registro No Guardado";
-        }
-    }
-
-
+    //     if (guardadoAccesorio.IsSuccessStatusCode)
+    //     {
+    //         var accesorioCreado = await guardadoAccesorio.Content.ReadFromJsonAsync<Accesorios>();
+    //         resultado = 1;
+    //         mensaje = "Registro Guardado";
+    //         accesorios = new Accesorios();
+    //     }
+    //     else
+    //     {
+    //         resultado = 2;
+    //         mensaje = "Registro No Guardado";
+    //     }
+    // }
 
     public void Remove(VehiculoDetalle details)
     {
