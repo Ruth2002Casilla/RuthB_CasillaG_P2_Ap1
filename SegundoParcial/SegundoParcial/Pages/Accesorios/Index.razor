@@ -1,119 +1,126 @@
 ﻿@page "/IndexAccesorios"
 
 @inject HttpClient HttpClient
+@inject NavigationManager NavigationManager
+
 
 <EditForm Model="ListaAccesorios" class="border shadow-lg p-3 rounded">
-		<div class="card-header bg-primary text-white text-center py-2 rounded">
-			<h3 style="font-weight: bold;" class="mb-0 font-weight-bold">Consulta de Accesorios</h3>
-		</div>
+    <div class="card-header bg-primary text-white text-center py-2 rounded">
+        <h3 style="font-weight: bold;" class="mb-0 font-weight-bold">Consulta de Accesorios</h3>
+    </div>
 
-	<div class="card-body">
-		<div class="row mb-3 align-items-end">
-			<div class="col-md-3">
-				<label style="font-weight: bold;" for="filtar" class="form-label">Filtrar por:</label>
-				<select @bind="filtrar" class="form-select">
-					<option value="accesorioid">ID</option>
-					<option value="descripcion">Descripci&oacuten</option>
-				</select>
-			</div>
-			<div class="col-md-6">
-				<label style="font-weight: bold;" for="busqueda" class="form-label">B&uacute;squeda:</label>
-				<div class="input-group">
-					<input @bind="busqueda" class="form-control" placeholder="Buscar" />
-					<button @onclick="Buscar" class="btn btn-outline-primary" type="button">
-						<i class="bi bi-search"></i> Buscar
-					</button>
+    <div class="card-body">
+        <div class="row mb-3 align-items-end">
+            <div class="col-md-3">
+                <label style="font-weight: bold;" for="filtar" class="form-label">Filtrar por:</label>
+                <select @bind="filtrar" class="form-select">
+                    <option value="accesorioid">ID</option>
+                    <option value="descripcion">Descripción</option>
+                </select>
+            </div>
+            <div class="col-md-6">
+                <label style="font-weight: bold;" for="busqueda" class="form-label">Búsqueda:</label>
+                <div class="input-group">
+                    <input @bind="busqueda" class="form-control" placeholder="Buscar" />
+                    <button @onclick="Buscar" class="btn btn-outline-primary" type="button">
+                        <i class="bi bi-search"></i> Buscar
+                    </button>
+                </div>
+            </div>
+            <div class="col-md-3 text-end">
+                <a href="/CreateAccesorios" class="btn btn-success" type="button"><i class="bi bi-plus-lg"></i> Crear </a>
+            </div>
+        </div>
+    </div>
 
-				</div>
-			</div>
-			<div class="col-md-3 text-end">
-				<a href="/CreateAccesorios" class="btn btn-success" type="button"><i class="bi bi-plus-lg"></i> Crear </a>
-			</div>
+    <div>
+        <table class="table table-bordered text-center">
+            <thead class="bg-primary text-white">
+                <tr>
+                    <th>AccesorioId</th>
+                    <th>Descripción</th>
+                    <th>Editar</th>
+                    <th>Detalle</th>
+                    <th>Eliminar</th>
+                </tr>
+            </thead>
 
-		</div>
-	</div>
+            <tbody>
+                @if (ListaAccesorios.Any())
+                {
+                    @foreach (var acceso in ListaAccesorios)
+                    {
+                        <tr>
+                            <td>@acceso.AccesorioId</td>
+                            <td>@acceso.Descripcion</td>
 
-		<div>
-
-				<table class="table table-bordered text-center">
-				<thead class="bg-primary text-white">
-					<tr>
-						<th>AccesorioId</th>
-						<th>Descripci&oacuten</th>
-						<th>Editar</th>
-						<th>Detalle</th>
-						<th>Eliminar</th>
-					</tr>
-				</thead>
-
-
-				<tbody>
-					@if (ListaAccesorios.Any())
-					{
-						@foreach (var acceso in ListaAccesorios)
-						{
-							<tr>
-								<td>@acceso.AccesorioId</td>
-								<td>@acceso.Descripcion</td>
-
-								<td>
-									<a href="/EditAccesorio/@acceso.AccesorioId" style="border: none; background-color: transparent;" class="btn-editar">
-										<span class="bi bi-marker-tip" style="font-size: 2rem;"></span>
-									</a>
-								</td>
-								<td>
-									<a href="/DetailsAccesorio/@acceso.AccesorioId" style="border: none; background-color: transparent;" class="btn-detalle">
-										<span class="bi bi-info-circle-fill" style="font-size: 2rem;"></span>
-									</a>
-								</td>
-								<td>
-									<a href="/DeleteAccesorio/@acceso.AccesorioId" style="border: none; background-color: transparent;" class="btn-eliminar">
-										<span class="bi bi-dash-circle-fill" style="font-size: 2rem;"></span>
-									</a>
-								</td>
-							</tr>
-						}
-					}
-					else
-					{
-						<tr>				
-							<td colspan="9" class="text-center"> <label>No se ha encontrado nada</label> </td>
-						</tr>
-					}
-				</tbody>
-
-			</table>
-
-		</div>
+                            <td>
+                                <a href="/EditAccesorios/@acceso.AccesorioId" style="border: none; background-color: transparent;" class="btn-editar">
+                                    <span class="bi bi-marker-tip" style="font-size: 2rem;"></span>
+                                </a>
+                            </td>
+                            <td>
+                                <a href="/DetailsAccesorios/@acceso.AccesorioId" style="border: none; background-color: transparent;" class="btn-detalle">
+                                    <span class="bi bi-info-circle-fill" style="font-size: 2rem;"></span>
+                                </a>
+                            </td>
+                            <td>
+                                <a href="/DeleteAccesorios/@acceso.AccesorioId" style="border: none; background-color: transparent;" class="btn-eliminar">
+                                    <span class="bi bi-dash-circle-fill" style="font-size: 2rem;"></span>
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="9" class="text-center"> <label>No se ha encontrado nada</label> </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+        
+    </div>
 </EditForm>
 
-
-
+@if (!string.IsNullOrEmpty(MensajeEliminar))
+{
+    <div id="mensaje" class="alert alert-success">
+        @MensajeEliminar
+    </div>
+}
 
 @code {
+    public string filtrar = "1", busqueda = "";
+    private List<Accesorios> ListaAccesorios = new List<Accesorios>();
+    private string MensajeEliminar = "";
 
-	public string filtrar = "1", busqueda = "";
+    protected override async Task OnInitializedAsync()
+    {
+        ListaAccesorios = await HttpClient.GetFromJsonAsync<List<Accesorios>>("api/Accesorios");
+        
+        var uri = NavigationManager.ToAbsoluteUri(NavigationManager.Uri);
+        var query = QueryHelpers.ParseQuery(uri.Query);
+        if (query.TryGetValue("mensaje", out var mensaje))
+        {
+            MensajeEliminar = mensaje;
+        }
+    }
 
-	private List<Accesorios> ListaAccesorios = new List<Accesorios>();
-
-	protected override async Task OnInitializedAsync()
-	{
-		ListaAccesorios = await HttpClient.GetFromJsonAsync<List<Accesorios>>("api/Accesorios");
-	}
-
-	public async Task Buscar()
-	{
-		if (filtrar == "accesorioid" && int.TryParse(busqueda, out int id))
-		{
-			ListaAccesorios = (await HttpClient.GetFromJsonAsync<List<Accesorios>>("api/Accesorios")).Where(a => a.AccesorioId == id).ToList();
-		}
-		else if(filtrar == "descripcion")
-		{
-			ListaAccesorios = (await HttpClient.GetFromJsonAsync<List<Accesorios>>("api/Accesorios")).Where(a => a.Descripcion == busqueda).ToList();
-		}
-		if (string.IsNullOrEmpty(busqueda))
-		{
-			ListaAccesorios = await HttpClient.GetFromJsonAsync<List<Accesorios>>("api/Accesorios");
-		}
-	}
+    public async Task Buscar()
+    {
+        if (filtrar == "accesorioid" && int.TryParse(busqueda, out int id))
+        {
+            ListaAccesorios = (await HttpClient.GetFromJsonAsync<List<Accesorios>>("api/Accesorios")).Where(a => a.AccesorioId == id).ToList();
+        }
+        else if (filtrar == "descripcion")
+        {
+            ListaAccesorios = (await HttpClient.GetFromJsonAsync<List<Accesorios>>("api/Accesorios")).Where(a => a.Descripcion == busqueda).ToList();
+        }
+        if (string.IsNullOrEmpty(busqueda))
+        {
+            ListaAccesorios = await HttpClient.GetFromJsonAsync<List<Accesorios>>("api/Accesorios");
+        }
+    }
 }

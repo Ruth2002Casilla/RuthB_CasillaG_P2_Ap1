@@ -1,64 +1,73 @@
-﻿@page "/DeleteAccesorios/{AccesorioID:int}"
-@page "/DeleteAccesorios"
+﻿@page "/DeleteAccesorios"
+@page "/DeleteAccesorios/{AccesorioID:int}"
 
 @inject NavigationManager NavigationManager
 @inject HttpClient HttpClient
 
-<EditForm Model="accesorio">
-	<DataAnnotationsValidator />
-	<div class="card shadow-lg border-0 rounded" style="background-color: #f8f9fa;">
+<div class="card shadow-lg border-0 rounded" style="background-color: #f8f9fa;">
+	<div class="card-header bg-primary text-white text-center py-2 rounded">
+		<h3 style="font-weight: bold;" class="mb-0 font-weight-bold">Eliminar Accesorios</h3>
+	</div>
 
-		<div class="card-header bg-primary text-white text-center py-2 rounded">
-			<h3 style="font-weight: bold;" class="mb-0 font-weight-bold">Eliminar Accesorios</h3>
+	<div class="card-body text-center">
+		<div class="col-md-6 mb-3 mx-auto">
+			<label style="font-weight: bold;" class="form-label font-weight-bold">ID:</label>
+			<span>@accesorio.AccesorioId</span>
 		</div>
-		<div class="card-body">
-			<div class="row">
-				<div class="col">
-					<label class="fw-bold">Descripci&oacute;n:</label>
-					<span>@accesorio.Descripcion</span>
-				</div>
-			</div>
-			<div class="row text-center">
-				<label class="fw-bold">¿Seguro que quieres eliminar este Accesorio?</label>
-			</div>
+
+		<div class="col-md-6 mb-3 mx-auto">
+			<label style="font-weight: bold;" class="form-label font-weight-bold">Descripci&oacuten:</label>
+			<span>@accesorio.Descripcion</span>
 		</div>
-		<div class="card-footer">
-			<div class="text-center">
-				<button type="button" class="btn btn-success" @onclick="Eliminar"><i class="bi bi-archive-fill"></i> Si</button>
-				<a href="/IndexAccesorios" class="btn btn-danger"><i class="bi bi-arrow-90deg-left"></i> No</a>
-			</div>
+
+		<div class="col-md-12 mb-3 mx-auto">
+			<p style="font-weight: bold;">¿Seguro que deseas eliminar este Accesorio?</p>
 		</div>
 
 	</div>
 
-</EditForm>
+	<div class="card-footer bg-light d-flex justify-content-center">
+		<div class="btn-group">
+			<button @onclick="Eliminar" type="button" class="btn btn-success btn-block"><i class="bi bi-dash-circle-fill"></i> Sí</button>
+			<a href="/IndexAccesorios/" class="btn btn-danger btn-block"><i class="bi bi-arrow-90deg-left"></i> No</a>
+		</div>
+	</div>
+
+
+</div>
+
 
 @code {
+    [Parameter]
+    public int AccesorioID { get; set; }
 
-	[Parameter]
-	public int AccesorioID { get; set; }
+    public Accesorios accesorio = new Accesorios();
 
-	public Accesorios accesorio = new Accesorios();
+    public string MensajeEliminar { get; set; } = "";
+    public bool MostrarMensaje { get; set; } = false;
 
-	protected override async Task OnInitializedAsync()
-	{
-		if (AccesorioID != 0)
-		{
-			var buscado = await HttpClient.GetFromJsonAsync<Accesorios>("api/Accesorios/" + AccesorioID);
-			if (buscado != null)
-			{
-				accesorio = buscado;
-			}
-		}
-	}
+    protected override async Task OnInitializedAsync()
+    {
+        if (AccesorioID != 0)
+        {
+            var buscado = await HttpClient.GetFromJsonAsync<Accesorios>("api/Accesorios/" + AccesorioID);
+            if (buscado != null)
+            {
+                accesorio = buscado;
+            }
+        }
+    }
 
-	public async Task Eliminar()
-	{
-		var guardado = await HttpClient.DeleteAsync("api/Vehiculos/" + AccesorioID);
-		if (guardado.IsSuccessStatusCode)
-		{
-			NavigationManager.NavigateTo("IndexAccesorios");
-		}
-	}
+    public async Task Eliminar()
+    {
+        var guardado = await HttpClient.DeleteAsync("api/Accesorios/" + AccesorioID);
+        if (guardado.IsSuccessStatusCode)
+        {
+            MensajeEliminar = "Accesorio eliminado exitosamente.";
+            NavigationManager.NavigateTo($"IndexAccesorios?mensaje={Uri.EscapeDataString(MensajeEliminar)}");
+        }
+    }
 
 }
+
+
