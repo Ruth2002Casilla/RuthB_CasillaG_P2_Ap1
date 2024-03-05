@@ -1,5 +1,87 @@
-﻿<h3>Edit</h3>
+﻿@page "/EditAccesorios"
+@page "/EditAccesorios/{AccesorioID:int}"
+
+@inject NavigationManager NavigationManager
+@inject HttpClient HttpClient
+
+<EditForm Model="accesorio" OnValidSubmit="Guardar">
+	<DataAnnotationsValidator />
+	<div class="card shadow-lg border-0 rounded" style="background-color: #f8f9fa;">
+
+		<div class="card-header bg-primary text-white text-center py-2 rounded">
+			<h3 style="font-weight: bold;" class="mb-0 font-weight-bold">Editar Accesorio</h3>
+		</div>
+		<div class="card-body">
+			<div class="row">
+				<div class="col">
+					<label class="fw-bold">Descripci&oacute;n:</label>
+					<InputText class="form-control" @bind-Value="accesorio.Descripcion"></InputText>
+					<ValidationMessage For="(() => accesorio.Descripcion)" />
+					@if (!string.IsNullOrEmpty(MensajeGuardar))
+					{
+						<div class="alert alert-danger mt-2" role="alert">@MensajeGuardar</div>
+					}
+				</div>
+			</div>
+		</div>
+		<div class="card-footer">
+			<div class="btn-group">
+				<a type="button" href="/IndexAccesorios/" class="btn btn-outline-danger"><i class="bi bi-arrow-90deg-left"></i> Retroceder </a>
+				<button type="submit" class="btn btn-outline-success"><i class="bi bi-arrow-down"></i> Guardar </button>
+			</div>
+
+		</div>
+	</div>
+
+</EditForm>
 
 @code {
 
+    [Parameter]
+    public int AccesorioID { get; set; }
+    public string MensajeGuardar { get; set; }
+
+    public Accesorios accesorio = new Accesorios();
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (AccesorioID != 0)
+        {
+            var buscado = await HttpClient.GetFromJsonAsync<Accesorios>("api/Accesorios/" + AccesorioID);
+            if (buscado != null)
+            {
+                accesorio = buscado;
+            }
+        }
+    }
+
+    public async Task Guardar()
+    {
+        await VerificarDescripcion();
+        if (string.IsNullOrEmpty(MensajeGuardar))
+        {
+            var guardado = await HttpClient.PutAsJsonAsync("api/Accesorios/" + AccesorioID, this.accesorio);
+            if (guardado.IsSuccessStatusCode)
+            {
+                NavigationManager.NavigateTo("IndexAccesorios");
+            }
+        }
+    }
+
+    public async Task VerificarDescripcion()
+    {
+        var accesorios = await HttpClient.GetFromJsonAsync<List<Accesorios>>("api/Accesorios");
+        var accesorioEncontrado = accesorios.FirstOrDefault(a => a.Descripcion == accesorio.Descripcion);
+
+        if (accesorioEncontrado != null && accesorioEncontrado.AccesorioId != accesorio.AccesorioId)
+        {
+            MensajeGuardar = "Ya existe un accesorio con esta descripción.";
+        }
+        else
+        {
+            MensajeGuardar = string.Empty;
+        }
+    }
+
 }
+
