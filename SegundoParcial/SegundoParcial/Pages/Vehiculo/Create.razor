@@ -1,5 +1,131 @@
-﻿@page "/Create"
+﻿@page "/CreateVehiculo"
 
 @inject NavigationManager NavigationManager
 @inject HttpClient httpClient
+
+<PageTitle>Registro Tickets</PageTitle>
+
+<EditForm Model="vehiculo" OnValidSubmit="Guardar">
+    <DataAnnotationsValidator />
+    <div class="card shadow col-8">
+        <div class="card-header bg-primary">
+            <h1 class="text-light">Registro de Vehiculos</h1>
+        </div>
+        <div class="card-body bg-light">
+
+            <div class="row mt-2">
+                <div class="col-4">
+                    <label class="fw-bold bi bi-calendar-date"> Fecha</label>
+                    <InputDate @bind-Value="vehiculo.Fecha" class="form-control"></InputDate>
+                    <ValidationMessage For="@(() => vehiculo.Fecha)" />
+                </div>
+            </div>
+            <div class="row mt-2">
+                <div class="col-3">
+                    <label class="fw-bold bi bi-person-badge-fill"> Descripci&oacute:</label>
+                    <InputText @bind-Value="vehiculo.Decsripcion" class="form-control"></InputText>
+                    <ValidationMessage For="@(() => vehiculo.Decsripcion)" />
+                </div>
+        </div>
+@* Fin de Vehiculo *@
+        
+</EditForm>
+
+
+@code {
+
+    public Vehiculo vehiculo = new Vehiculo();
+    public Accesorios accesorios = new Accesorios();
+    public List<Accesorios> ListaAccesorios { get; set; } = new List<Accesorios>();
+    public List<VehiculoDetalle> ListaDetalles = new List<VehiculoDetalle>();
+    public VehiculoDetalle Detalle { get; set; } = new VehiculoDetalle();
+
+    public string? mensaje { get; set; }
+    public int resultado { get; set; }
+    public int Opcion { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        ListaAccesorios = (await httpClient.GetFromJsonAsync<List<Accesorios>>("api/Accesorios"))!;
+        Nuevo();
+    }
+
+
+    public async Task Guardar()
+    {
+        var guardadoVehiculo = await httpClient.PostAsJsonAsync("api/Vehisuclo", this.vehiculo);
+
+        if (guardadoVehiculo.IsSuccessStatusCode)
+        {
+            var VehiculoCreado = await guardadoVehiculo.Content.ReadFromJsonAsync<Vehiculo>();
+
+            foreach (var detalle in ListaDetalles)
+            {
+                VehiculoDetalle vehiculodetalles = new VehiculoDetalle();
+                vehiculodetalles.VehiculoId = VehiculoCreado!.VehiculoId;
+                vehiculodetalles.AccesorioId = detalle.AccesorioId;
+                vehiculodetalles.Valor = detalle.Valor;
+
+                await httpClient.PostAsJsonAsync("api/VehiculoDetalle", vehiculodetalles);
+            }
+            resultado = 1;
+            mensaje = "Registro Guardado";
+            ListaDetalles = new List<VehiculoDetalle>();
+            vehiculo = new Vehiculo();
+        }
+        else
+        {
+            resultado = 2;
+            mensaje = "Registro No Guardado";
+        }
+    }
+
+    public async Task GuardarAccesorio()
+    {
+        bool existeAccesorio = await VerificarExistenciaAccesorio();
+
+        if (existeAccesorio)
+        {
+            resultado = 2;
+            mensaje = "Ya existe un vehiculo con la misma descrpcion.";
+            return;
+        }
+
+        var guardadoAccesorio = await httpClient.PostAsJsonAsync("api/Accesorios", this.accesorios);
+
+        if (guardadoAccesorio.IsSuccessStatusCode)
+        {
+            var accesorioCreado = await guardadoAccesorio.Content.ReadFromJsonAsync<Accesorios>();
+            resultado = 1;
+            mensaje = "Registro Guardado";
+            accesorios = new Accesorios();
+        }
+        else
+        {
+            resultado = 2;
+            mensaje = "Registro No Guardado";
+        }
+    }
+
+
+
+    public void Remove(VehiculoDetalle details)
+    {
+        Detalle = details;
+        ListaDetalles.Remove(details);
+    }
+
+    public void MensajeGuardar()
+    {
+        resultado = 0;
+        mensaje = string.Empty;
+    }
+
+    public void Nuevo()
+    {
+        vehiculo = new Vehiculo();
+        ListaDetalles = new List<VehiculoDetalle>();
+        MensajeGuardar();
+    }
+}
 
