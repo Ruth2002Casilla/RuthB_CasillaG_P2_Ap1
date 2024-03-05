@@ -1,5 +1,64 @@
-﻿<h3>Delete</h3>
+﻿@page "/DeleteAccesorios/{AccesorioID:int}"
+@page "/DeleteAccesorios"
+
+@inject NavigationManager NavigationManager
+@inject HttpClient HttpClient
+
+<EditForm Model="accesorio">
+	<DataAnnotationsValidator />
+	<div class="card shadow-lg border-0 rounded" style="background-color: #f8f9fa;">
+
+		<div class="card-header bg-primary text-white text-center py-2 rounded">
+			<h3 style="font-weight: bold;" class="mb-0 font-weight-bold">Eliminar Accesorios</h3>
+		</div>
+		<div class="card-body">
+			<div class="row">
+				<div class="col">
+					<label class="fw-bold">Descripci&oacute;n:</label>
+					<span>@accesorio.Descripcion</span>
+				</div>
+			</div>
+			<div class="row text-center">
+				<label class="fw-bold">¿Seguro que quieres eliminar este Accesorio?</label>
+			</div>
+		</div>
+		<div class="card-footer">
+			<div class="text-center">
+				<button type="button" class="btn btn-success" @onclick="Eliminar"><i class="bi bi-archive-fill"></i> Si</button>
+				<a href="/IndexAccesorios" class="btn btn-danger"><i class="bi bi-arrow-90deg-left"></i> No</a>
+			</div>
+		</div>
+
+	</div>
+
+</EditForm>
 
 @code {
+
+	[Parameter]
+	public int AccesorioID { get; set; }
+
+	public Accesorios accesorio = new Accesorios();
+
+	protected override async Task OnInitializedAsync()
+	{
+		if (AccesorioID != 0)
+		{
+			var buscado = await HttpClient.GetFromJsonAsync<Accesorios>("api/Accesorios/" + AccesorioID);
+			if (buscado != null)
+			{
+				accesorio = buscado;
+			}
+		}
+	}
+
+	public async Task Eliminar()
+	{
+		var guardado = await HttpClient.DeleteAsync("api/Vehiculos/" + AccesorioID);
+		if (guardado.IsSuccessStatusCode)
+		{
+			NavigationManager.NavigateTo("IndexAccesorios");
+		}
+	}
 
 }
