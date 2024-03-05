@@ -12,7 +12,7 @@
 			<div class="col-md-3">
 				<label style="font-weight: bold;" for="filtar" class="form-label">Filtrar por:</label>
 				<select @bind="filtrar" class="form-select">
-					<option value="id">ID</option>
+					<option value="accesorioid">ID</option>
 					<option value="descripcion">Descripci&oacuten</option>
 				</select>
 			</div>
@@ -27,7 +27,7 @@
 				</div>
 			</div>
 			<div class="col-md-3 text-end">
-				<a href="/createsistemas" class="btn btn-success" type="button"><i class="bi bi-plus-lg"></i> Crear </a>
+				<a href="/CreateAccesorios" class="btn btn-success" type="button"><i class="bi bi-plus-lg"></i> Crear </a>
 			</div>
 
 		</div>
@@ -107,7 +107,7 @@
 		{
 			ListaAccesorios = (await HttpClient.GetFromJsonAsync<List<Accesorios>>("api/Accesorios")).Where(a => a.AccesorioId == id).ToList();
 		}
-		else if(filtrar == "descrpcion")
+		else if(filtrar == "descripcion")
 		{
 			ListaAccesorios = (await HttpClient.GetFromJsonAsync<List<Accesorios>>("api/Accesorios")).Where(a => a.Descripcion == busqueda).ToList();
 		}
@@ -116,6 +116,4 @@
 			ListaAccesorios = await HttpClient.GetFromJsonAsync<List<Accesorios>>("api/Accesorios");
 		}
 	}
-
-	
 }

@@ -18,6 +18,10 @@
 					<label class="fw-bold">Descripci&oacute;n:</label>
 					<InputText class="form-control" @bind-Value="accesorio.Descripcion"></InputText>
 					<ValidationMessage For="(() => accesorio.Descripcion)" />
+                    @if (!string.IsNullOrEmpty(MensajeGuardar))
+                    {
+                        <div class="alert alert-danger mt-2" role="alert">@MensajeGuardar</div>
+                    }
 				</div>
 			</div>
 		</div>
@@ -34,17 +38,41 @@
 
 
 @code {
+    public Accesorios accesorio = new Accesorios();
+    public string MensajeGuardar { get; set; }
 
-	public Accesorios accesorio = new Accesorios();
+    public async Task Guardar()
+    {
+        await VerificarDescripcion();
+        if (!string.IsNullOrEmpty(MensajeGuardar))
+        {
+            return;
+        }
 
-	public async Task Guardar()
-	{
-		var guardado = await HttpClient.PostAsJsonAsync("api/Accesorios", this.accesorio);
-		if (guardado.IsSuccessStatusCode)
-		{
-			NavigationManager.NavigateTo("IndexAccesorios");
-		}
+        var guardado = await HttpClient.PostAsJsonAsync("api/Accesorios", this.accesorio);
+        if (guardado.IsSuccessStatusCode)
+        {
+            NavigationManager.NavigateTo("IndexAccesorios");
+        }
+    }
 
-	}
+    public async Task VerificarDescripcion()
+    {
+        var accesorios = await HttpClient.GetFromJsonAsync<List<Accesorios>>("api/Accesorios");
+        var accesorioEncontrado = accesorios.FirstOrDefault(a => a.Descripcion == accesorio.Descripcion);
 
+        if (accesorioEncontrado != null)
+        {
+            MensajeGuardar = "Ya existe un accesorio con esta descripción.";
+        }
+        else
+        {
+            MensajeGuardar = string.Empty;
+        }
+    }
+
+    public void Mensaje(string mensaje)
+    {
+        Console.WriteLine(mensaje);
+    }
 }
