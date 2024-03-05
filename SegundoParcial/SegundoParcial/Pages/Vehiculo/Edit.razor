@@ -1,7 +1,220 @@
 ﻿@page "/EditVehiculo"
+@page "/EditVehiculo/{VehiculoID:int}"
+
 
 @inject NavigationManager NavigationManager
+@inject HttpClient HttpClient
+
+<EditForm Model="vehiculo" OnValidSubmit="Guardar">
+    <DataAnnotationsValidator />
+    <div class="card">
+        <div class="card-header">
+            <div class="row text-center text-white bg-primary">
+                <h3>Registrar Vehículo</h3>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-6">
+                    <label class="fw-bold">Descripci&oacuten:</label>
+                    <InputText class="form-control" @bind-Value="vehiculo.Descripcion"></InputText>
+                    <ValidationMessage For="(() => vehiculo.Descripcion)" />
+                </div>
+                <div class="col-6">
+                    <label class="fw-bold">Fecha:</label>
+                    <InputDate class="form-control" @bind-Value="vehiculo.Fecha"></InputDate>
+                    <ValidationMessage For="(() => vehiculo.Fecha)" />
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-6">
+                    <label class="fw-bold">Costo:</label>
+                    <InputNumber class="form-control" @bind-Value="vehiculo.Costo"></InputNumber>
+                    <ValidationMessage For="(() => vehiculo.Costo)" />
+                </div>
+                <div class="col-6">
+                    <label class="fw-bold">Gasto:</label>
+                    <InputNumber class="form-control" @bind-Value="vehiculo.Gasto" disabled></InputNumber>
+                </div>
+            </div>
+        </div>
+
+        <!-- INICIO DETALLES DEL VEHICULO -->
+        <div class="card-header bg-primary text-white text-center">
+            <h3 style="font-weight: bold;" class="mb-0 font-weight-bold">Detalles del Vehiculo</h3>
+        </div>
+
+        <div class="modal-body">
+
+            <div class="row">
+                <div class="col-md-6">
+                    <!-- Accesorio -->
+                    <div class="mb-3">
+                        <label class="fw-bold">Accesorio:</label>
+                        <InputSelect class="form-select" @bind-Value="accesorioSeleccionado">
+                            @foreach (var accesorio in ListaAccesorios)
+                            {
+                                <option value="@accesorio.AccesorioId">@accesorio.Descripcion</option>
+                            }
+                        </InputSelect>
+                        <ValidationMessage For="@(() => accesorioSeleccionado)" />
+                    </div>
+
+                    <!-- Valor -->
+                    <div class="mb-3">
+                        <label class="fw-bold">Valor:</label>
+                        <InputNumber class="form-control" @bind-Value="valorAcesorio"></InputNumber>
+                    </div>
+
+                    <!-- Botón Agregar -->
+                    <div class="mb-3 text-end">
+                        <button type="button" class="btn btn-success" @onclick="agregarAccesorio"><i class="bi bi-plus-lg"></i> Agregar</button>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <!-- Detalles del Vehículo -->
+                    <div class="mb-3">
+                        <table class="table table-bordered text-center">
+                            <thead class="bg-secondary text-white">
+                                <tr>
+                                    <th class="col-3">Descripción</th>
+                                    <th class="col-7">Valor</th>
+                                    <th class="col-1">Eliminar</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (ListaDetalles.Any())
+                                {
+                                    @foreach (var item in ListaDetalles)
+                                    {
+                                        var itemAccesorio = (ListaAccesorios.FirstOrDefault(a => a.AccesorioId == item.AccesorioId))!;
+                                        <tr>
+                                            <td>@itemAccesorio.Descripcion</td>
+                                            <td>@item.Valor</td>
+                                            <td><button style="background: transparent; border: none;" type="button" @onclick="(() => eliminarDetalle(item))"><i class="bi bi-dash-circle-fill"></i></button></td>
+                                        </tr>
+                                    }
+                                }
+                                else
+                                {
+                                    <tr><td colspan="3">No hay vehículo...</td></tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
+        <!-- FIN DETALLES DEL VEHICULO -->
+
+        <div class="card-footer">
+            <div class="text-end">
+                <a href="/VehiculoIndex" class="btn btn-danger"><i class="bi bi-arrow-90deg-left"></i> Retroceder</a>
+                <button type="submit" class="btn btn-success"><i class="bi bi-arrow-down"></i> Guardar</button>
+            </div>
+        </div>
+    </div>
+</EditForm>
+
 
 @code {
+
+    [Parameter]
+    public int VehiculoID { get; set; }
+
+    public int? accesorioSeleccionado = null;
+    public float valorAcesorio = 0;
+
+	public Vehiculo vehiculo = new Vehiculo();
+	public VehiculoDetalle detalles = new VehiculoDetalle();
+	public List<Accesorios> ListaAccesorios = new List<Accesorios>();
+	public List<VehiculoDetalle> ListaDetalles = new List<VehiculoDetalle>();
+	public List<VehiculoDetalle> ListaDetallesEliminados = new List<VehiculoDetalle>();
+
+
+	protected override async Task OnInitializedAsync()
+	{
+		if (VehiculoID != 0)
+		{
+			ListaAccesorios = await HttpClient.GetFromJsonAsync<List<Accesorios>>("api/Accesorios");
+			ListaDetalles = (await HttpClient.GetFromJsonAsync<List<VehiculoDetalle>>("api/VehiculoDetalle"))!.Where(d => d.VehiculoId == VehiculoID).ToList();
+
+			var buscado = await HttpClient.GetFromJsonAsync<Vehiculo>("api/Vehiculo/" + VehiculoID);
+			if (buscado != null)
+			{
+				vehiculo = buscado;
+			}
+		}
+	}
+
+
+	public async Task Guardar()
+	{
+		var guardadoVehiculo = await HttpClient.PutAsJsonAsync("api/Vehiculo/" + VehiculoID, this.vehiculo);
+
+		if (guardadoVehiculo.IsSuccessStatusCode)
+		{
+			if (ListaDetallesEliminados.Any())
+			{
+				foreach (var detalle in ListaDetallesEliminados)
+				{
+					await HttpClient.DeleteAsync("api/VehiculoDetalle/" + detalle.VehiculoDetalleId);
+				}
+			}
+
+			foreach (var detalle in ListaDetalles)
+			{
+				if (detalle.VehiculoDetalleId == 0)
+				{
+					VehiculoDetalle vehiculoDetalleNew = new VehiculoDetalle();
+					vehiculoDetalleNew.VehiculoId = VehiculoID;
+					vehiculoDetalleNew.AccesorioId = detalle.AccesorioId;
+					vehiculoDetalleNew.Valor = detalle.Valor;
+
+					await HttpClient.PostAsJsonAsync("api/VehiculoDetalle", vehiculoDetalleNew);
+				}
+			}
+			NavigationManager.NavigateTo("/VehiculoIndex");
+		}
+	}
+
+
+    public async Task agregarAccesorio()
+    {
+        if (accesorioSeleccionado.HasValue)
+        {
+            var busqueda = await HttpClient.GetFromJsonAsync<List<Accesorios>>("api/Accesorios");
+            var resultado = busqueda.FirstOrDefault(a => a.AccesorioId == accesorioSeleccionado);
+
+            if (resultado != null)
+            {
+                bool existe = ListaDetalles.Any(item => item.AccesorioId == resultado.AccesorioId);
+
+                if (!existe)
+                {
+                    vehiculo.Gasto += valorAcesorio;
+                    ListaDetalles.Add(new VehiculoDetalle(resultado.AccesorioId, valorAcesorio));
+                    accesorioSeleccionado = null;
+                    valorAcesorio = 0;
+                }
+            }
+        }
+    }
+
+
+
+	public async Task eliminarDetalle(VehiculoDetalle vehiculoDetalle)
+	{
+		vehiculo.Gasto -= vehiculoDetalle.Valor;
+		ListaDetallesEliminados.Add(new VehiculoDetalle(vehiculoDetalle.VehiculoDetalleId, vehiculoDetalle.VehiculoId, vehiculoDetalle.AccesorioId));
+		ListaDetalles.Remove(vehiculoDetalle);
+		ListaDetalles.Remove(vehiculoDetalle);
+		accesorioSeleccionado = null;
+		valorAcesorio = 0;
+	}
 
 }
