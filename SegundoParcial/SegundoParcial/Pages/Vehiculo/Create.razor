@@ -14,10 +14,15 @@
         <div class="card-body">
             <div class="row">
                 <div class="col-6">
-                    <label class="fw-bold">Descripci&oacuten:</label>
+                    <label class="fw-bold">Descripción:</label>
                     <InputText class="form-control" @bind-Value="vehiculo.Descripcion"></InputText>
-                    <ValidationMessage For="(() => vehiculo.Descripcion)" />
+                    <ValidationMessage For="@(() => vehiculo.Descripcion)" />
+                    @if (!string.IsNullOrEmpty(MensajeGuardar))
+                    {
+                        <div class="alert alert-danger mt-2" role="alert">@MensajeGuardar</div>
+                    }
                 </div>
+
                 <div class="col-6">
                     <label class="fw-bold">Fecha:</label>
                     <InputDate class="form-control" @bind-Value="vehiculo.Fecha"></InputDate>
@@ -57,18 +62,26 @@
                             }
                         </InputSelect>
                         <ValidationMessage For="@(() => accesorioSeleccionado)" />
+                        
                     </div>
 
                     <!-- Valor -->
                     <div class="mb-3">
                         <label class="fw-bold">Valor:</label>
-                        <InputNumber class="form-control" @bind-Value="valorAcesorio"></InputNumber>
+                        <InputNumber class="form-control" @bind-Value="valorAcesorio" min="0"></InputNumber>
                     </div>
 
                     <!-- Botón Agregar -->
                     <div class="mb-3 text-end">
                         <button type="button" class="btn btn-success" @onclick="agregarAccesorio"><i class="bi bi-plus-lg"></i> Agregar</button>
                     </div>
+                    @if (mostrarMensaje)
+                    {
+                        <div class="alert alert-warning" role="alert">
+                            El Accesorio ya existe o el Valor es Negativo.
+                        </div>
+                    }
+
                 </div>
 
                 <div class="col-md-6">
@@ -122,40 +135,48 @@
 @code {
 
     public int? accesorioSeleccionado = null;
-	public float valorAcesorio = 0;
+    public float valorAcesorio = 0;
+    bool mostrarMensaje = false;
+    public string MensajeGuardar { get; set; }
 
-	public Vehiculo vehiculo = new Vehiculo();
-	public VehiculoDetalle detalles = new VehiculoDetalle();
-	public List<Accesorios> ListaAccesorios = new List<Accesorios>();
-	public List<VehiculoDetalle> ListaDetalles = new List<VehiculoDetalle>();
+    public Vehiculo vehiculo = new Vehiculo();
+    public VehiculoDetalle detalles = new VehiculoDetalle();
+    public List<Accesorios> ListaAccesorios = new List<Accesorios>();
+    public List<VehiculoDetalle> ListaDetalles = new List<VehiculoDetalle>();
 
-	protected override async Task OnInitializedAsync()
-	{
-		ListaAccesorios = await HttpClient.GetFromJsonAsync<List<Accesorios>>("api/Accesorios");
-	}
+    protected override async Task OnInitializedAsync()
+    {
+        ListaAccesorios = await HttpClient.GetFromJsonAsync<List<Accesorios>>("api/Accesorios");
+    }
 
-	public async Task Guardar()
-	{
-		var guardadoVehiculo = await HttpClient.PostAsJsonAsync("api/Vehiculo", this.vehiculo);
+    public async Task Guardar()
+    {
+        await VerificarDescripcion(vehiculo.Descripcion);
 
-		if (guardadoVehiculo.IsSuccessStatusCode)
-		{
-			var vehiculoCreado = await guardadoVehiculo.Content.ReadFromJsonAsync<Vehiculo>();
+        if (!string.IsNullOrEmpty(MensajeGuardar))
+        {
+            return;
+        }
+        var guardadoVehiculo = await HttpClient.PostAsJsonAsync("api/Vehiculo", this.vehiculo);
 
-			//Agregamos los detalles del ticket
-			foreach (var detalle in ListaDetalles)
-			{
-				VehiculoDetalle vehiculoDetalleNew = new VehiculoDetalle();
-				vehiculoDetalleNew.VehiculoId = vehiculoCreado.VehiculoId;
-				vehiculoDetalleNew.AccesorioId = detalle.AccesorioId;
-				vehiculoDetalleNew.Valor = detalle.Valor;
+        if (guardadoVehiculo.IsSuccessStatusCode)
+        {
+            var vehiculoCreado = await guardadoVehiculo.Content.ReadFromJsonAsync<Vehiculo>();
 
-				await HttpClient.PostAsJsonAsync("api/VehiculoDetalle", vehiculoDetalleNew);
-			}
+            foreach (var detalle in ListaDetalles)
+            {
+                VehiculoDetalle vehiculoDetalleNew = new VehiculoDetalle();
+                vehiculoDetalleNew.VehiculoId = vehiculoCreado.VehiculoId;
+                vehiculoDetalleNew.AccesorioId = detalle.AccesorioId;
+                vehiculoDetalleNew.Valor = detalle.Valor;
+
+                await HttpClient.PostAsJsonAsync("api/VehiculoDetalle", vehiculoDetalleNew);
+            }
 
             NavigationManager.NavigateTo("/VehiculoIndex");
-		}
-	}
+        }
+    }
+
 
 
     public async Task agregarAccesorio()
@@ -171,15 +192,47 @@
 
                 if (!existe)
                 {
-                    vehiculo.Gasto += valorAcesorio;
-                    ListaDetalles.Add(new VehiculoDetalle(resultado.AccesorioId, valorAcesorio));
-                    accesorioSeleccionado = null; 
-                    valorAcesorio = 0;
+                    if (valorAcesorio >= 0)
+                    {
+                        vehiculo.Gasto += valorAcesorio;
+                        ListaDetalles.Add(new VehiculoDetalle(resultado.AccesorioId, valorAcesorio));
+                        accesorioSeleccionado = null;
+                        valorAcesorio = 0;
+                    }
+                    else
+                    {
+                        mostrarMensaje = true;
+                    }
+                }
+                else
+                {
+                    mostrarMensaje = true;
                 }
             }
         }
     }
 
+    public async Task VerificarDescripcion(string descripcion)
+    {
+        var vehiculos = await HttpClient.GetFromJsonAsync<List<Vehiculo>>("api/Vehiculo");
+
+        var vehiculoEncontrado = vehiculos.FirstOrDefault(v => v.Descripcion == descripcion);
+
+        if (vehiculoEncontrado != null)
+        {
+            MensajeGuardar = "Ya existe un Vehiculo con esta descripción.";
+        }
+        else
+        {
+            MensajeGuardar = string.Empty;
+        }
+    }
+
+
+    public void Mensaje(string mensaje)
+    {
+        Console.WriteLine(mensaje);
+    }
 
 	public async Task eliminarDetalle(VehiculoDetalle vehiculoDetalle)
 	{

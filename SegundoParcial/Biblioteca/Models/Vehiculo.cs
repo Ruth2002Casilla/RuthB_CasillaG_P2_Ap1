@@ -22,7 +22,7 @@ namespace Biblioteca.Models
         public string? Descripcion { get; set; }
 
         [Required(ErrorMessage = "Este campo es Obligatorio")]
-        [Range(1.00, double.MaxValue, ErrorMessage = "El Monto debe ser mayor que 0.")]
+        [Range(0.01, double.MaxValue, ErrorMessage = "El Monto debe ser mayor que 0.")]
         public double Costo { get; set; }
         public double Gasto { get; set; }
     }

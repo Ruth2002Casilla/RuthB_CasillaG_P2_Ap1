@@ -84,7 +84,7 @@
 		if (guardado.IsSuccessStatusCode)
 		{
             MensajeEliminar = "Vehículo eliminado exitosamente.";
-			NavigationManager.NavigateTo($"IndexAccesorios?mensaje={Uri.EscapeDataString(MensajeEliminar)}");
+            NavigationManager.NavigateTo($"VehiculoIndex?mensaje={Uri.EscapeDataString(MensajeEliminar)}");
 		}
 	}
 
