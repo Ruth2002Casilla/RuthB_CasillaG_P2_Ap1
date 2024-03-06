@@ -1,7 +1,92 @@
 ﻿@page "/DeleteVehiculo"
+@page "/DeleteVehiculo/{VehiculoID:int}"
+
 
 @inject NavigationManager NavigationManager
+@inject HttpClient HttpClient
+
+<EditForm Model="vehiculo" OnValidSubmit="Eliminar">
+    <DataAnnotationsValidator />
+    <div class="card shadow-lg border-0 rounded" style="background-color: #f8f9fa;">
+        <div class="card-header bg-primary text-white text-center py-2 rounded">
+            <h3 style="font-weight: bold;" class="mb-0 font-weight-bold">Eliminar Vehículo</h3>
+        </div>
+
+        <div class="card-body text-center">
+            <div class="col-md-6 mb-3 mx-auto">
+                <label style="font-weight: bold;" class="form-label font-weight-bold">ID:</label>
+                <span>@vehiculo.VehiculoId</span>
+            </div>
+
+            <div class="col-md-6 mb-3 mx-auto">
+                <label style="font-weight: bold;" class="form-label font-weight-bold">Descripción:</label>
+                <span>@vehiculo.Descripcion</span>
+            </div>
+
+            <div class="col-md-6 mb-3 mx-auto">
+                <label style="font-weight: bold;" class="form-label font-weight-bold">Fecha:</label>
+                <span>@vehiculo.Fecha.ToString("dd/MM/yyyy")</span>
+            </div>
+
+            <div class="col-md-6 mb-3 mx-auto">
+                <label style="font-weight: bold;" class="form-label font-weight-bold">Costo:</label>
+                <span>@vehiculo.Costo</span>
+            </div>
+
+            <div class="col-md-6 mb-3 mx-auto">
+                <label style="font-weight: bold;" class="form-label font-weight-bold">Gasto:</label>
+                <span>@vehiculo.Gasto</span>
+            </div>
+
+            <div class="col-md-12 mb-3 mx-auto">
+                <p style="font-weight: bold;">¿Seguro que deseas eliminar este Vehículo?</p>
+            </div>
+        </div>
+
+        <div class="card-footer bg-light d-flex justify-content-center">
+            <div class="btn-group">
+                <button @onclick="Eliminar" type="button" class="btn btn-success btn-block"><i class="bi bi-dash-circle-fill"></i> Sí</button>
+                <a href="/VehiculoIndex/" class="btn btn-danger btn-block"><i class="bi bi-arrow-90deg-left"></i> No</a>
+            </div>
+        </div>
+    </div>
+</EditForm>
+
+
+
+
 
 @code {
 
+	[Parameter]
+	public int VehiculoID { get; set; }
+
+	public Vehiculo vehiculo = new Vehiculo();
+
+	public string MensajeEliminar { get; set; } = "";
+	public bool MostrarMensaje { get; set; } = false;
+
+	protected override async Task OnInitializedAsync()
+	{
+		if (VehiculoID != 0)
+		{
+			var buscado = await HttpClient.GetFromJsonAsync<Vehiculo>("api/Vehiculo/" + VehiculoID);
+			if (buscado != null)
+			{
+				vehiculo = buscado;
+			}
+		}
+	}
+
+	public async Task Eliminar()
+	{
+		var guardado = await HttpClient.DeleteAsync("api/Vehiculo/" + VehiculoID);
+		if (guardado.IsSuccessStatusCode)
+		{
+            MensajeEliminar = "Vehículo eliminado exitosamente.";
+            NavigationManager.NavigateTo($"VehiculoIndex?mensaje={Uri.EscapeDataString(MensajeEliminar)}");
+		}
+	}
+
 }
+

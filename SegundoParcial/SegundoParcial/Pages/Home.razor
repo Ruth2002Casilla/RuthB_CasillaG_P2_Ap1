@@ -1,7 +1,24 @@
 ﻿@page "/"
+@{
+    var imagePath = "/ferrari.jpg";
+}
 
-<PageTitle>Home</PageTitle>
+<style>
+    .centered-image {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 80vh; /* Ajusta la altura de la imagen al 100% del viewport */
+    }
 
-<h1>Hello, world!</h1>
+        .centered-image img {
+            max-width: 100%;
+            max-height: 100%;
+        }
+</style>
 
-Welcome to your new app.
+<div class="centered-image">
+    <img src="@imagePath" alt="Ferrari" class="img-fluid" />
+</div>
+
+

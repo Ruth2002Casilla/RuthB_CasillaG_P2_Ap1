@@ -1,42 +1,131 @@
 ﻿@page "/CreateVehiculo"
 
 @inject NavigationManager NavigationManager
-@inject HttpClient httpClient
-
-<PageTitle>Registro Tickets</PageTitle>
+@inject HttpClient HttpClient
 
 <EditForm Model="vehiculo" OnValidSubmit="Guardar">
     <DataAnnotationsValidator />
-    <div class="card shadow col-8">
-        <div class="card-header bg-primary">
-            <h1 class="text-light">Registro de Vehiculos</h1>
+    <div class="card">
+        <div class="card-header">
+            <div class="row text-center text-white bg-primary">
+                <h3>Registrar Vehículo</h3>
+            </div>
         </div>
-        <div class="card-body bg-light">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-6">
+                    <label class="fw-bold">Descripción:</label>
+                    <InputText class="form-control" @bind-Value="vehiculo.Descripcion"></InputText>
+                    <ValidationMessage For="@(() => vehiculo.Descripcion)" />
+                    @if (!string.IsNullOrEmpty(MensajeGuardar))
+                    {
+                        <div class="alert alert-danger mt-2" role="alert">@MensajeGuardar</div>
+                    }
+                </div>
 
-            <div class="row mt-2">
-                <div class="col-4">
-                    <label class="fw-bold bi bi-calendar-date"> Fecha</label>
-                    <InputDate @bind-Value="vehiculo.Fecha" class="form-control"></InputDate>
-                    <ValidationMessage For="@(() => vehiculo.Fecha)" />
+                <div class="col-6">
+                    <label class="fw-bold">Fecha:</label>
+                    <InputDate class="form-control" @bind-Value="vehiculo.Fecha"></InputDate>
+                    <ValidationMessage For="(() => vehiculo.Fecha)" />
                 </div>
             </div>
-            <div class="row mt-2">
-                <div class="col-3">
-                    <label class="fw-bold bi bi-person-badge-fill"> Descripci&oacute:</label>
-                    <InputText @bind-Value="vehiculo.Decsripcion" class="form-control"></InputText>
-                    <ValidationMessage For="@(() => vehiculo.Decsripcion)" />
+
+            <div class="row">
+                <div class="col-6">
+                    <label class="fw-bold">Costo:</label>
+                    <InputNumber class="form-control" @bind-Value="vehiculo.Costo"></InputNumber>
+                    <ValidationMessage For="(() => vehiculo.Costo)" />
                 </div>
-        </div>
-@* Fin de Vehiculo *@
+                <div class="col-6">
+                    <label class="fw-bold">Gasto:</label>
+                    <InputNumber class="form-control" @bind-Value="vehiculo.Gasto" disabled></InputNumber>
+                </div>
+            </div>
         </div>
 
-        <div class="card-footer">
+        <!-- INICIO DETALLES DEL VEHICULO -->
+        <div class="card-header bg-primary text-white text-center">
+            <h3 style="font-weight: bold;" class="mb-0 font-weight-bold">Detalles del Vehiculo</h3>
+        </div>
+
+        <div class="modal-body">
+
             <div class="row">
-                <div class="input-group">
-                    <a href="/IndexVehiculo" class="btn btn-primary bi bi-house-door-fill">Volver</a>
-                    <button type="button" class="btn btn-secondary bi bi-file-earmark-diff-fill" @onclick="Nuevo" @oninput="MensajeGuardar">Nuevo</button>
-                    <button type="submit" class="btn btn-success bi bi-floppy-fill">Guardar</button>
+                <div class="col-md-6">
+                    <!-- Accesorio -->
+                    <div class="mb-3">
+                        <label class="fw-bold">Accesorio:</label>
+                        <InputSelect class="form-select" @bind-Value="accesorioSeleccionado">
+                            @foreach (var accesorio in ListaAccesorios)
+                            {
+                                <option value="@accesorio.AccesorioId">@accesorio.Descripcion</option>
+                            }
+                        </InputSelect>
+                        <ValidationMessage For="@(() => accesorioSeleccionado)" />
+                        
+                    </div>
+
+                    <!-- Valor -->
+                    <div class="mb-3">
+                        <label class="fw-bold">Valor:</label>
+                        <InputNumber class="form-control" @bind-Value="valorAcesorio" min="0"></InputNumber>
+                    </div>
+
+                    <!-- Botón Agregar -->
+                    <div class="mb-3 text-end">
+                        <button type="button" class="btn btn-success" @onclick="agregarAccesorio"><i class="bi bi-plus-lg"></i> Agregar</button>
+                    </div>
+                    @if (mostrarMensaje)
+                    {
+                        <div class="alert alert-warning" role="alert">
+                            El Accesorio ya existe o el Valor es Negativo.
+                        </div>
+                    }
+
                 </div>
+
+                <div class="col-md-6">
+                    <!-- Detalles del Vehículo -->
+                    <div class="mb-3">
+                        <table class="table table-bordered text-center">
+                            <thead class="bg-secondary text-white">
+                                <tr>
+                                    <th class="col-3">Descripción</th>
+                                    <th class="col-7">Valor</th>
+                                    <th class="col-1">Eliminar</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (ListaDetalles.Any())
+                                {
+                                    @foreach (var item in ListaDetalles)
+                                    {
+                                        var itemAccesorio = (ListaAccesorios.FirstOrDefault(a => a.AccesorioId == item.AccesorioId))!;
+                                        <tr>
+                                            <td>@itemAccesorio.Descripcion</td>
+                                            <td>@item.Valor</td>
+                                            <td><button style="background: transparent; border: none;" type="button" @onclick="(() => eliminarDetalle(item))"><i class="bi bi-dash-circle-fill"></i></button></td>
+                                        </tr>
+                                    }
+                                }
+                                else
+                                {
+                                    <tr><td colspan="3">No hay vehículo...</td></tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
+        <!-- FIN DETALLES DEL VEHICULO -->
+
+        <div class="card-footer">
+            <div class="text-end">
+                <a href="/VehiculoIndex" class="btn btn-danger"><i class="bi bi-arrow-90deg-left"></i> Retroceder</a>
+                <button type="submit" class="btn btn-success"><i class="bi bi-arrow-down"></i> Guardar</button>
             </div>
         </div>
     </div>
@@ -45,96 +134,113 @@
 
 @code {
 
-    public Vehiculo vehiculo = new Vehiculo();
-    public Accesorios accesorios = new Accesorios();
-    public List<Accesorios> ListaAccesorios { get; set; } = new List<Accesorios>();
-    public List<VehiculoDetalle> ListaDetalles = new List<VehiculoDetalle>();
-    public VehiculoDetalle Detalle { get; set; } = new VehiculoDetalle();
+    public int? accesorioSeleccionado = null;
+    public float valorAcesorio = 0;
+    bool mostrarMensaje = false;
+    public string MensajeGuardar { get; set; }
 
-    public string? mensaje { get; set; }
-    public int resultado { get; set; }
-    public int Opcion { get; set; }
+    public Vehiculo vehiculo = new Vehiculo();
+    public VehiculoDetalle detalles = new VehiculoDetalle();
+    public List<Accesorios> ListaAccesorios = new List<Accesorios>();
+    public List<VehiculoDetalle> ListaDetalles = new List<VehiculoDetalle>();
 
     protected override async Task OnInitializedAsync()
     {
-        ListaAccesorios = (await httpClient.GetFromJsonAsync<List<Accesorios>>("api/Accesorios"))!;
-        Nuevo();
+        ListaAccesorios = await HttpClient.GetFromJsonAsync<List<Accesorios>>("api/Accesorios");
     }
-
 
     public async Task Guardar()
     {
-        var guardadoVehiculo = await httpClient.PostAsJsonAsync("api/Vehisuclo", this.vehiculo);
+        await VerificarDescripcion(vehiculo.Descripcion);
+
+        if (!string.IsNullOrEmpty(MensajeGuardar))
+        {
+            return;
+        }
+        var guardadoVehiculo = await HttpClient.PostAsJsonAsync("api/Vehiculo", this.vehiculo);
 
         if (guardadoVehiculo.IsSuccessStatusCode)
         {
-            var VehiculoCreado = await guardadoVehiculo.Content.ReadFromJsonAsync<Vehiculo>();
+            var vehiculoCreado = await guardadoVehiculo.Content.ReadFromJsonAsync<Vehiculo>();
 
             foreach (var detalle in ListaDetalles)
             {
-                VehiculoDetalle vehiculodetalles = new VehiculoDetalle();
-                vehiculodetalles.VehiculoId = VehiculoCreado!.VehiculoId;
-                vehiculodetalles.AccesorioId = detalle.AccesorioId;
-                vehiculodetalles.Valor = detalle.Valor;
+                VehiculoDetalle vehiculoDetalleNew = new VehiculoDetalle();
+                vehiculoDetalleNew.VehiculoId = vehiculoCreado.VehiculoId;
+                vehiculoDetalleNew.AccesorioId = detalle.AccesorioId;
+                vehiculoDetalleNew.Valor = detalle.Valor;
 
-                await httpClient.PostAsJsonAsync("api/VehiculoDetalle", vehiculodetalles);
+                await HttpClient.PostAsJsonAsync("api/VehiculoDetalle", vehiculoDetalleNew);
             }
-            resultado = 1;
-            mensaje = "Registro Guardado";
-            ListaDetalles = new List<VehiculoDetalle>();
-            vehiculo = new Vehiculo();
+
+            NavigationManager.NavigateTo("/VehiculoIndex");
+        }
+    }
+
+
+
+    public async Task agregarAccesorio()
+    {
+        if (accesorioSeleccionado.HasValue)
+        {
+            var busqueda = await HttpClient.GetFromJsonAsync<List<Accesorios>>("api/Accesorios");
+            var resultado = busqueda.FirstOrDefault(a => a.AccesorioId == accesorioSeleccionado);
+
+            if (resultado != null)
+            {
+                bool existe = ListaDetalles.Any(item => item.AccesorioId == resultado.AccesorioId);
+
+                if (!existe)
+                {
+                    if (valorAcesorio >= 0)
+                    {
+                        vehiculo.Gasto += valorAcesorio;
+                        ListaDetalles.Add(new VehiculoDetalle(resultado.AccesorioId, valorAcesorio));
+                        accesorioSeleccionado = null;
+                        valorAcesorio = 0;
+                    }
+                    else
+                    {
+                        mostrarMensaje = true;
+                    }
+                }
+                else
+                {
+                    mostrarMensaje = true;
+                }
+            }
+        }
+    }
+
+    public async Task VerificarDescripcion(string descripcion)
+    {
+        var vehiculos = await HttpClient.GetFromJsonAsync<List<Vehiculo>>("api/Vehiculo");
+
+        var vehiculoEncontrado = vehiculos.FirstOrDefault(v => v.Descripcion == descripcion);
+
+        if (vehiculoEncontrado != null)
+        {
+            MensajeGuardar = "Ya existe un Vehiculo con esta descripción.";
         }
         else
         {
-            resultado = 2;
-            mensaje = "Registro No Guardado";
+            MensajeGuardar = string.Empty;
         }
     }
 
-    // public async Task GuardarAccesorio()
-    // {
-    //     bool existeAccesorio = await VerificarExistenciaAccesorio();
 
-    //     if (existeAccesorio)
-    //     {
-    //         resultado = 2;
-    //         mensaje = "Ya existe un cliente con el mismo nombre o RNC.";
-    //         return;
-    //     }
-
-    //     var guardadoAccesorio = await httpClient.PostAsJsonAsync("api/Accesorios", this.accesorios);
-
-    //     if (guardadoAccesorio.IsSuccessStatusCode)
-    //     {
-    //         var accesorioCreado = await guardadoAccesorio.Content.ReadFromJsonAsync<Accesorios>();
-    //         resultado = 1;
-    //         mensaje = "Registro Guardado";
-    //         accesorios = new Accesorios();
-    //     }
-    //     else
-    //     {
-    //         resultado = 2;
-    //         mensaje = "Registro No Guardado";
-    //     }
-    // }
-
-    public void Remove(VehiculoDetalle details)
+    public void Mensaje(string mensaje)
     {
-        Detalle = details;
-        ListaDetalles.Remove(details);
+        Console.WriteLine(mensaje);
     }
 
-    public void MensajeGuardar()
-    {
-        resultado = 0;
-        mensaje = string.Empty;
-    }
+	public async Task eliminarDetalle(VehiculoDetalle vehiculoDetalle)
+	{
+		vehiculo.Gasto -= vehiculoDetalle.Valor;
+		ListaDetalles.Remove(vehiculoDetalle);
+		accesorioSeleccionado = null;
+		valorAcesorio = 0;
+	}
 
-    public void Nuevo()
-    {
-        vehiculo = new Vehiculo();
-        ListaDetalles = new List<VehiculoDetalle>();
-        MensajeGuardar();
-    }
 }
 

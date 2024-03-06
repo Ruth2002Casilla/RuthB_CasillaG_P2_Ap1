@@ -1,7 +1,69 @@
 ﻿@page "/DetailsVehiculo"
+@page "/DetailsVehiculo/{VehiculoID:int}"
+
 
 @inject NavigationManager NavigationManager
+@inject HttpClient HttpClient
+
+<EditForm Model="vehiculo">
+	<DataAnnotationsValidator />
+	<div class="card shadow-lg border-0 rounded" style="background-color: #f8f9fa;">
+		<div class="card-header bg-primary text-white text-center py-2 rounded">
+			<h3 style="font-weight: bold;" class="mb-0 font-weight-bold">Detalles del Vehículo</h3>
+		</div>
+		<div class="card-body">
+			<div class="row">
+				<div class="col-6">
+					<label class="fw-bold">Descripci&oacute;n:</label>
+					<span>@vehiculo.Descripcion</span>
+				</div>
+				<div class="col-6">
+					<label class="fw-bold">Fecha:</label>
+					<span>@vehiculo.Fecha.ToString("dd/MM/yyyy")</span>
+				</div>
+			</div>
+
+			<div class="row">
+				<div class="col-6">
+					<label class="fw-bold">Costo:</label>
+					<span>@vehiculo.Costo</span>
+				</div>
+				<div class="col-6">
+					<label class="fw-bold">Gasto:</label>
+					<span>@vehiculo.Gasto</span>
+				</div>
+			</div>
+		</div>
+
+		<div class="card-footer">
+			<div class="text-end">
+				<a href="/VehiculoIndex" class="btn btn-danger">
+					<i class="bi bi-arrow-90deg-left"></i> Retroceder
+				</a>
+			</div>
+		</div>
+	</div>
+
+</EditForm>
 
 @code {
 
+	[Parameter]
+	public int VehiculoID { get; set; }
+
+	public Vehiculo vehiculo = new Vehiculo();
+
+	protected override async Task OnInitializedAsync()
+	{
+		if (VehiculoID != 0)
+		{
+			var buscado = await HttpClient.GetFromJsonAsync<Vehiculo>("api/Vehiculo/" + VehiculoID);
+			if (buscado != null)
+			{
+				vehiculo = buscado;
+			}
+		}
+	}
+
 }
+

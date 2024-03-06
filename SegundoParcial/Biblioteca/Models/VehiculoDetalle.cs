@@ -22,7 +22,22 @@ namespace Biblioteca.Models
         public int AccesorioId { get; set; }
 
         [Required(ErrorMessage = "Este campo es Obligatorio")]
-        [Range(1.00, double.MaxValue, ErrorMessage = "El Monto debe ser mayor que 0.")]
+        [Range(0, double.MaxValue - 1, ErrorMessage = "El monto debe ser mayor o igual a 0.")]
         public double Valor {  get; set; }
-    }
+
+		public VehiculoDetalle() { }
+
+		public VehiculoDetalle(int accesorioid, float valor)
+		{
+			AccesorioId = accesorioid;
+			Valor = valor;
+		}
+
+		public VehiculoDetalle(int id, int accesorioid, float valor)
+		{
+			VehiculoDetalleId = id;
+			AccesorioId = accesorioid;
+			Valor = valor;
+		}
+	}
 }

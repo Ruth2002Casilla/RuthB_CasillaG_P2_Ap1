@@ -12,7 +12,7 @@ builder.Services.AddSwaggerGen();
 
 var conexion = builder.Configuration.GetConnectionString("conexion");
 builder.Services.AddDbContext<Context>(options =>
-    options.UseSqlite(conexion));
+options.UseSqlite(conexion));
 
 var app = builder.Build();
 

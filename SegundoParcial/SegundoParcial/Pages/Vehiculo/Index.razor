@@ -5,16 +5,16 @@
 
 <EditForm Model="ListaVehiculo" class="border shadow-lg p-3 rounded">
     <div class="card-header bg-primary text-white text-center py-2 rounded">
-        <h3 style="font-weight: bold;" class="mb-0 font-weight-bold">Consulta de Vehiculos</h3>
+        <h3 style="font-weight: bold;" class="mb-0 font-weight-bold">Consulta de Veh&iacuteculos</h3>
     </div>
     <div class="card-body">
         <div class="row mb-3 align-items-end">
             <div class="col-md-3">
                 <label style="font-weight: bold;" for="Filtro" class="form-label">Filtrar por:</label>
                 <select @bind="filtro" class="form-select">
-                    <option value="ticketId">Vehiculo ID</option>
-                    <option value="clienteId">Costo</option>
-                    <option value="asunto">Descrpcion</option>
+                    <option value="VehiculoId">Vehiculo ID</option>
+                    <option value="costo">Costo</option>
+                    <option value="descripcion">Descripci&oacuten</option>
                 </select>
             </div>
             <div class="col-md-6">
@@ -22,12 +22,12 @@
                 <div class="input-group">
                     <input @bind="valorFiltro" class="form-control" placeholder="Buscar" />
                     <button @onclick="Buscar" class="btn btn-outline-primary" type="button">
-                        <span class="fas fa-search"></span> Buscar
+                        <span class="bi bi-search"></span> Buscar
                     </button>
                 </div>
             </div>
             <div class="col-md-3 text-end">
-                <a href="/CreateVehiculo" class="btn btn-success" type="button"><span class="fas fa-plus"></span> Crear </a>
+                <a href="/CreateVehiculo" class="btn btn-success" type="button"><span class="bi bi-plus-lg"></span> Crear </a>
             </div>
         </div>
     </div>
@@ -36,7 +36,7 @@
             <tr>
                 <th>ID</th>
                 <th>Fecha</th>
-                <th>Descripcion</th>
+                <th>Descripci&oacuten</th>
                 <th>Costo</th>
                 <th>Gasto</th>
                 <th>Editar</th>
@@ -52,24 +52,24 @@
                     <tr>
                         <td>@vehiculo.VehiculoId</td>
                         <td>@vehiculo.Fecha</td>
-                        <td>@vehiculo.Decsripcion</td>
+                        <td>@vehiculo.Descripcion</td>
                         <td>@vehiculo.Costo</td>
                         <td>@vehiculo.Gasto</td>
                         <td>
                             <a href="/EditVehiculo/@vehiculo.VehiculoId" style="border: none; background-color: transparent;" class="btn-editar">
-                               
+                                <span class="bi bi-marker-tip" style="font-size: 2rem;"></span>
                             </a>
-
                         </td>
                         <td>
                             <a href="/DetailsVehiculo/@vehiculo.VehiculoId" style="border: none; background-color: transparent;" class="btn-detalle">
-                              
+                                <span class="bi bi-info-circle-fill" style="font-size: 2rem;"></span>
                             </a>
                         </td>
                         <td>
                             <a href="/DeleteVehiculo/@vehiculo.VehiculoId" style="border: none; background-color: transparent;" class="btn-eliminar">
-                                <img style="width: 32px; height: 32px;" src="./recursos/eliminar.png" alt="eliminar" />
+                                <span class="bi bi-trash" style="font-size: 2rem;"></span>
                             </a>
+
                         </td>
                     </tr>
                 }
@@ -77,12 +77,20 @@
             else
             {
                 <tr>
-                    <td colspan="10" class="text-center">No se ha encontrado ningun ticket.</td>
+                    <td colspan="10" class="text-center">No se ha encontrado ningun veh&iacuteculo.</td>
                 </tr>
             }
         </tbody>
     </table>
 </EditForm>
+
+
+@if (!string.IsNullOrEmpty(MensajeEliminar))
+{
+    <div id="mensaje" class="alert alert-success">
+        @MensajeEliminar
+    </div>
+}
 
 
 @code {
@@ -91,6 +99,7 @@
 
     private string filtro = "ticketId";
     private string valorFiltro = "";
+    private string MensajeEliminar = "";
 
 
     public List<Vehiculo> ListaVehiculo = new List<Vehiculo>();
@@ -98,6 +107,13 @@
     protected override async Task OnInitializedAsync()
     {
         ListaVehiculo = await httpClient.GetFromJsonAsync<List<Vehiculo>>("api/Vehiculo");
+
+        var uri = NavigationManager.ToAbsoluteUri(NavigationManager.Uri);
+        var query = QueryHelpers.ParseQuery(uri.Query);
+        if (query.TryGetValue("mensaje", out var mensaje))
+        {
+            MensajeEliminar = mensaje;
+        }
     }
 
 
@@ -117,7 +133,7 @@
             }
             else if (filtro == "descripcion")
             {
-                ListaVehiculo = (await httpClient.GetFromJsonAsync<List<Vehiculo>>("api/Vehiculo"))!.Where(v => v.Decsripcion == valorFiltro).ToList();
+                ListaVehiculo = (await httpClient.GetFromJsonAsync<List<Vehiculo>>("api/Vehiculo"))!.Where(v => v.Descripcion == valorFiltro).ToList();
             }
         }
         else
